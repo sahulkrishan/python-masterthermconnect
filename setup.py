@@ -39,7 +39,7 @@ setup(
     install_requires=["aiohttp"],
     long_description_content_type="text/markdown",
     long_description=readme,
-    url="https://github.com/shedc/python-masterthermconnect",
+    url="https://github.com/sahulkrishan/python-masterthermconnect",
     packages=["masterthermconnect"],
     version=get_version(),
 )
