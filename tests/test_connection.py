@@ -7,12 +7,6 @@ from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 import pytest
 
-import sys
-
-sys.path.append(
-    "C:/Users/ytsah/OneDrive/Documenten/HomeAssistant/python-masterthermconnect"
-)
-
 from masterthermconnect import (
     Connection,
     MasterThermAuthenticationError,
