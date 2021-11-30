@@ -36,7 +36,7 @@ TIMEOUT = 10
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
-HEADERS = {"Content-type": "application/x-www-form-urlencoded"}
+HEADERS = {"content-type": "application/x-www-form-urlencoded"}
 
 
 class Auth:
@@ -69,7 +69,6 @@ class Auth:
         data = f"login=login&uname={self._username}&upwd={self._password}&{self._clientinfo}"
         headers = {"content-type": "application/x-www-form-urlencoded"}
         response = await self.api_wrapper("post", url, data, headers)
-        responseJSON = await response.json()
 
         # Response should always be 200 even for login failures.
         if response.status != 200:
@@ -77,16 +76,17 @@ class Auth:
             raise MasterThermConnectionError(str(response.status), errorMsg)
 
         # Expect that the response is JSON, check the result.
+        responseJSON = await response.json()
         if responseJSON["returncode"] != 0:
             raise MasterThermAuthenticationError(
                 responseJSON["returncode"], responseJSON["message"]
             )
 
-        # Check if role is supported
-        if not responseJSON["role"] in SUPPORTED_ROLES:
-            raise MasterThermUnsupportedRole(
-                "2", "Unsupported Role " + responseJSON["role"]
-            )
+        # # Check if role is supported
+        # if not responseJSON["role"] in SUPPORTED_ROLES:
+        #     raise MasterThermUnsupportedRole(
+        #         "2", "Unsupported Role " + responseJSON["role"]
+        #     )
 
         # Get or Refresh the Token and Expiry
         self._token = response.cookies[COOKIE_TOKEN].value
