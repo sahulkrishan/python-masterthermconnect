@@ -66,7 +66,7 @@ class Auth:
         self._isConnected = False
 
         params = f"login=login&uname={self._username}&upwd={self._password}&{self._clientinfo}"
-        response = await self.__session.post(
+        response = await self._session.post(
             urljoin(URL_BASE, URL_LOGIN),
             data=params,
             headers={"content-type": "application/x-www-form-urlencoded"},
