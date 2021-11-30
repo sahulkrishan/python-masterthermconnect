@@ -79,14 +79,15 @@ class HeatPump:
         self._dataLoaded = True
         return True
 
-    def getDevices(self):
+    def getModules(self):
         """Return a dict of all devices with data."""
-        deviceReturn = {}
+        modules = {}
         for module in self._data:
             for device in module:
                 module_id = device["info"]["module_id"]
-                deviceReturn[module_id] = device["info"]
-        return deviceReturn
+                device_id = device["info"]["device_id"]
+                modules[module_id][device_id] = device
+        return modules
 
     def getAttributeValue(self, module_id, device_id, attribute):
         value = self._data[module_id][device_id]["data"]["response"][0][0][attribute]
