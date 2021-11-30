@@ -126,7 +126,7 @@ class Auth:
         try:
             async with async_timeout.timeout(TIMEOUT):
                 self._messageId += 1
-                if not isConnected():
+                if not self.isConnected():
                     await self.connect()
 
                 if method == "get":
@@ -157,10 +157,4 @@ class Auth:
                 exception,
             )
         except Exception as exception:  # pylint: disable=broad-except
-            responseText = await response.text()
-            if responseText == "User not logged in":
-                _LOGGER.error("MasterTherm API Invalid Token: %s", responseText)
-                raise MasterThermTokenInvalid("1", responseText)
-            else:
-                _LOGGER.error("MasterTherm API unknown error: %s", responseText)
-                raise MasterThermResponseFormatError("2", responseText)
+            _LOGGER.error("Unknown Error")
