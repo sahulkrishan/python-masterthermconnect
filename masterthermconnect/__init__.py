@@ -2,8 +2,8 @@
 from masterthermconnect.__version__ import __version__
 from masterthermconnect.connection import Connection
 from masterthermconnect.controller import Controller
-from masterthermconnect.controller import Auth
-from masterthermconnect.controller import HeatPump
+from masterthermconnect.auth import Auth
+from masterthermconnect.heatpump import HeatPump
 from masterthermconnect.exceptions import (
     MasterThermAuthenticationError,
     MasterThermConnectionError,
@@ -14,8 +14,6 @@ from masterthermconnect.exceptions import (
 
 __all__ = [
     "__version__",
-    "Connection",
-    "Controller",
     "Auth",
     "HeatPump",
     "MasterThermAuthenticationError",
