@@ -11,6 +11,7 @@ SUPPORTED_ROLES = ["400"]
 URL_BASE = "https://mastertherm.vip-it.cz"
 URL_LOGIN = "/plugins/mastertherm_login/client_login.php"
 URL_PUMPINFO = "/plugins/get_pumpinfo/get_pumpinfo.php"
+URL_PUMPDATA = "/mt/PassiveVizualizationServlet"
 URL_GET = "/mt/PassiveVizualizationServlet"
 URL_POST = "/mt/ActiveVizualizationServlet"
 
