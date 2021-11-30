@@ -67,8 +67,7 @@ class Auth:
 
         url = urljoin(URL_BASE, URL_LOGIN)
         data = f"login=login&uname={self._username}&upwd={self._password}&{self._clientinfo}"
-        headers = {"content-type": "application/x-www-form-urlencoded"}
-        response = await self.api_wrapper("post", url, data, headers)
+        response = await self.api_wrapper("post", url, data)
 
         # Response should always be 200 even for login failures.
         if response.status != 200:
