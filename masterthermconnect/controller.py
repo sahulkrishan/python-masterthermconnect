@@ -51,7 +51,7 @@ class Controller:
                         invertedMap[listValue] = newKeyList
                 else:
                     itemType = item[0]
-                    if not (itemValue == "" or itemType == "fixed"): 
+                    if not (itemValue == "" or itemType == "fixed"):
                         invertedMap[itemValue] = newKeyList
             else:
                 invertedMap.update(self.__invertDeviceMap(item, newKeyList))
@@ -77,7 +77,7 @@ class Controller:
                     if itemValue == "": data[key] = 0
                     else: data[key] = int(registers[itemValue])
                 elif itemType == "string":
-                    if itemValue == "": data[key] = "" 
+                    if itemValue == "": data[key] = ""
                     else:
                         itemStr = ""
                         for listValue in itemValue:
@@ -119,8 +119,8 @@ class Controller:
 
         # Used in the process of Enabling/ Disabling Pads.
         checkCode = int(fullData["I_104"])
-        if checkCode < 11: 
-            checkCode = 10 
+        if checkCode < 11:
+            checkCode = 10
         else:
              if checkCode <= 200: checkCode = 11
 
@@ -140,12 +140,12 @@ class Controller:
             if checkCode >= 11:
                 # If any switch a to f is enabled then enable.
                 for i in range(7,1,-1):
-                    if padInfo[PAD_MAP[i]]: 
+                    if padInfo[PAD_MAP[i]]:
                         padInfo[PAD_MAP[8]] = True
                         break
             else:
                 padInfo[PAD_MAP[8]] = (
-                    fullData[DEVICE_SWITCH_MAP[8]] == "1" and 
+                    fullData[DEVICE_SWITCH_MAP[8]] == "1" and
                     float(fullData["A_190"]) > 0.1
                 )
 
@@ -187,7 +187,7 @@ class Controller:
         result = await self.__api.connect()
         self.__role = result["role"]
 
-        if not result["role"] in SUPPORTED_ROLES: 
+        if not result["role"] in SUPPORTED_ROLES:
             raise MasterThermUnsupportedRole("2", "Unsupported Role " + result["role"])
 
         # Initialize the Dictionary.
@@ -209,8 +209,10 @@ class Controller:
                     "data": {},
                 }
 
-        if updateData: return await self.__fullLoad()
-        else: return True
+        if updateData:
+            return await self.__fullLoad()
+        else:
+            return True
 
     async def refresh(self,fullLoad = False):
         """Refresh or Reload all entries for all devices."""
@@ -223,7 +225,7 @@ class Controller:
             device = self.__devices[id]
             module_id = device["info"]["module_id"]
             device_id = device["info"]["device_id"]
-            
+
             # Refresh Device Info (checks login too)
             deviceInfo = await self.__api.getDeviceInfo(module_id, device_id)
             if deviceInfo["returncode"] == "0":
@@ -235,15 +237,16 @@ class Controller:
             device["lastUpdateTime"] = deviceData["timestamp"]
             device["updatedData"] = deviceData["data"]["varfile_mt1_config1"]["001"].copy()
             device["fullData"].update(device["updatedData"])
-                
+
             # Refresh Normalized Data
             updateData = False
             for registerKey in device["updatedData"]:
-                if registerKey in self.__invertedMap: 
+                if registerKey in self.__invertedMap:
                     updateData = True
                     break
-                
-            if updateData: device["data"] = self.__populateData(self.__deviceMap, device["fullData"])
+
+            if updateData:
+                device["data"] = self.__populateData(self.__deviceMap, device["fullData"])
 
         return True
 
@@ -278,3 +281,16 @@ class Controller:
         if key in self.__devices:
             data = self.__devices[key]["data"]
         return data
+
+    def getCurrentTemperature(self, module_id, device_id):
+        """Get the current temperature"""
+        data = self.getDeviceData(module_id, device_id)
+        return 10.0
+
+    def getTemperature(self, module_id, device_id):
+        """Get the requested temperature"""
+        return 11.0
+
+    def setTemperature(self, module_id, device_id):
+        """Set a new temperature"""
+        return 12.0
