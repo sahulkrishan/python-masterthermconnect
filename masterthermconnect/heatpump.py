@@ -43,7 +43,7 @@ class HeatPump:
         # Initialize the Dictionary.
         self._modules = []
         for module in response["modules"]:
-            self._module.append(module)
+            self._modules.append(module)
 
         if updateData:
             return await self.updateData()
