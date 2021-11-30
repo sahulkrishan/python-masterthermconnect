@@ -65,9 +65,17 @@ class Auth:
         """Authenticate to the API"""
         self._isConnected = False
 
-        url = urljoin(URL_BASE, URL_LOGIN)
-        data = f"login=login&uname={self._username}&upwd={self._password}&{self._clientinfo}"
-        response = await self.api_wrapper("post", url, data)
+        params = f"login=login&uname={self._username}&upwd={self._password}&{self._clientinfo}"
+        response = await self.__session.post(
+            urljoin(URL_BASE, URL_LOGIN),
+            data=params,
+            headers={"content-type": "application/x-www-form-urlencoded"},
+        )
+
+        # url = urljoin(URL_BASE, URL_LOGIN)
+        # data = f"login=login&uname={self._username}&upwd={self._password}&{self._clientinfo}"
+        # response = await self.api_wrapper("post", url, data)
+        _LOGGER.error(response)
 
         # Response should always be 200 even for login failures.
         if response.status != 200:
