@@ -107,7 +107,7 @@ class Auth:
         """Get data of MasterTherm device from the API"""
         url = urljoin(URL_BASE, URL_GET)
         data = f"messageId={self._messageId}&moduleId={module_id}&deviceId={device_id}&fullRange=true&errorResponse=true&lastUpdateTime=0"
-        return await self.api_wrapper("post", url, data, HEADERS)
+        return await self.api_wrapper("post", url, data)
 
     async def async_set_data(
         self, module_id, device_id, config_file, variable_id, variable_value
@@ -115,27 +115,23 @@ class Auth:
         """Get data of MasterTherm device from the API"""
         url = urljoin(URL_BASE, URL_GET)
         data = f"configFile={config_file}&messageId={self._messageId}&moduleId={module_id}&deviceId={device_id}&variableId={variable_id}&variableValue={variable_value}"
-        response = await self.api_wrapper("post", url, data, HEADERS)
+        response = await self.api_wrapper("post", url, data)
         # TO-DO check response
         return True
 
-    async def api_wrapper(
-        self, method: str, url: str, data: dict = {}, headers: dict = {}
-    ) -> dict:
+    async def api_wrapper(self, method: str, url: str, data: dict = {}) -> dict:
         """Get information from the API."""
         try:
-            async with async_timeout.timeout(TIMEOUT):
-                self._messageId += 1
-                if not self.isConnected():
-                    await self.connect()
+            self._messageId += 1
+            if not await self.isConnected():
+                await self.connect()
 
+            async with async_timeout.timeout(TIMEOUT):
                 if method == "get":
-                    response = await self._session.get(url, headers=headers)
-                    return await response
+                    return await self._session.get(url, headers=HEADERS)
 
                 elif method == "post":
-                    response = await self._session.post(url, headers=headers, json=data)
-                    return await response
+                    return await self._session.post(url, headers=HEADERS, json=data)
 
         except asyncio.TimeoutError as exception:
             _LOGGER.error(
@@ -157,4 +153,4 @@ class Auth:
                 exception,
             )
         except Exception as exception:  # pylint: disable=broad-except
-            _LOGGER.error("Unknown Error")
+            _LOGGER.error("An unknown error has occured")
