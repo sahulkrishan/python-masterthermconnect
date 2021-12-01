@@ -51,17 +51,18 @@ class Device:
         self._dataLoaded = False
 
         response = await self._api.async_get_data()
+        responseJSON = await response.json()
 
         if response.status != 200:
             errorMsg = await response.text()
             raise MasterThermConnectionError(str(response.status), errorMsg)
 
-        self._timestamp = response["timestamp"]
+        self._timestamp = responseJSON["timestamp"]
 
-        self._config_file = list(response["data"].keys())[0]
-        listId = list(response["data"][self._config_file].keys())[0]
+        self._config_file = list(responseJSON["data"].keys())[0]
+        listId = list(responseJSON["data"][self._config_file].keys())[0]
 
-        self._data = response["data"][self._config_file][listId]
+        self._data = responseJSON["data"][self._config_file][listId]
 
         self._dataLoaded = True
         return True
@@ -82,9 +83,9 @@ class Device:
         # TO-DO check response
         return True
 
-    def getAttributeValue(self, attribute):
+    async def getAttributeValue(self, attribute):
         if not self._dataLoaded:
-            self.getData()
+            await self.getData()
         _LOGGER.info(self._data)
         value = self._data[attribute]
         return value

@@ -34,17 +34,17 @@ class Thermostat(Device):
         Device.__init__(self, auth, module_id, device_id)
 
     # TO-DO get variableIDs from const
-    def getCurrentTemperature(self):
+    async def getCurrentTemperature(self):
         """Get the current temparature"""
         variable_id = "A_211"
-        return float(self.getAttributeValue(variable_id))
+        return float(await self.getAttributeValue(variable_id))
 
-    def getTemperature(self):
+    async def getTemperature(self):
         """Get the requested temperature"""
         variable_id = "A_191"
-        return float(self.getAttributeValue(variable_id))
+        return float(await self.getAttributeValue(variable_id))
 
-    def setTemperature(self, temp):
+    async def setTemperature(self, temp):
         """Set a new temperature"""
         variable_id = "A_191"
         variable_value = float(temp)
@@ -57,10 +57,10 @@ class Thermostat(Device):
         )
         return True
 
-    def getHVACMode(self):
+    async def getHVACMode(self):
         """Return current mode of MasterTherm device"""
         variable_id = "I_52"
-        mode = self.getAttributeValue(variable_id)
+        mode = await self.getAttributeValue(variable_id)
         if mode == 0:
             return "heating"
         elif mode == 1:
