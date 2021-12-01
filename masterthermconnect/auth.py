@@ -126,7 +126,7 @@ class Auth:
 
     async def isConnected(self):
         """Check if session is still valid"""
-        if _expires <= datetime.now():
+        if self._expires <= datetime.now():
             self._isConnected = False
         return self._isConnected
 
