@@ -11,7 +11,7 @@ from hashlib import sha1
 import logging
 from urllib.parse import urljoin
 
-from masterthermconnect.const import (
+from .const import (
     APP_CLIENTINFO,
     APP_OS,
     APP_VERSION,
@@ -54,7 +54,7 @@ class Auth:
         self._expires = None
         self._isConnected = False
         self._lastUpdateTime = None
-        self._messageId = 1
+        self._modules = {}
 
     # async def async_set_title(self, value: str) -> None:
     #     """Get data from the API."""
@@ -100,8 +100,29 @@ class Auth:
             response.headers[HEADER_TOKEN_EXPIRES], DATE_FORMAT
         )
 
+        # Initialize module dict.
+        for module in response["modules"]:
+            for device in module["config"]:
+                module_id = module["id"]
+                module_name = module["module_name"]
+                device_id = device["mb_addr"]
+                device_name = device["mb_name"]
+
+                self._modules[module["id"]] = {
+                    device_id: {
+                        "module_id": module_id,
+                        "module_name": module_name,
+                        "device_id": device_id,
+                        "device_name": device_name,
+                    },
+                }
+
         self._isConnected = True
-        return responseJSON
+        return True
+
+    def getModules(self):
+        """Return a dict of all modules."""
+        return self._modules
 
     async def isConnected(self):
         """Check if session is still valid"""
@@ -109,26 +130,9 @@ class Auth:
             self._isConnected = False
         return self._isConnected
 
-    async def async_get_data(self, module_id, device_id) -> dict:
-        """Get data of MasterTherm device from the API"""
-        url = urljoin(URL_BASE, URL_GET)
-        data = f"messageId={self._messageId}&moduleId={module_id}&deviceId={device_id}&fullRange=true&errorResponse=true&lastUpdateTime=0"
-        return await self.api_wrapper("post", url, data)
-
-    async def async_set_data(
-        self, module_id, device_id, config_file, variable_id, variable_value
-    ) -> dict:
-        """Get data of MasterTherm device from the API"""
-        url = urljoin(URL_BASE, URL_GET)
-        data = f"configFile={config_file}&messageId={self._messageId}&moduleId={module_id}&deviceId={device_id}&variableId={variable_id}&variableValue={variable_value}"
-        response = await self.api_wrapper("post", url, data)
-        # TO-DO check response
-        return True
-
-    async def api_wrapper(self, method: str, url: str, data: dict = {}) -> dict:
+    async def api_wrapper(self, method, url, data):
         """Get information from the API."""
         try:
-            self._messageId += 1
             if not await self.isConnected():
                 await self.connect()
 
