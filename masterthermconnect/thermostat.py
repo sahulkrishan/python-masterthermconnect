@@ -37,16 +37,12 @@ class Thermostat(Device):
     def getCurrentTemperature(self):
         """Get the current temparature"""
         variable_id = "A_211"
-        return float(
-            self.getAttributeValue(self._module_id, self._device_id, variable_id)
-        )
+        return float(self.getAttributeValue(variable_id))
 
     def getTemperature(self):
         """Get the requested temperature"""
         variable_id = "A_191"
-        return float(
-            self.getAttributeValue(self._module_id, self._device_id, variable_id)
-        )
+        return float(self.getAttributeValue(variable_id))
 
     def setTemperature(self, temp):
         """Set a new temperature"""
@@ -64,7 +60,7 @@ class Thermostat(Device):
     def getHVACMode(self):
         """Return current mode of MasterTherm device"""
         variable_id = "I_52"
-        mode = self.getAttributeValue(self._module_id, self._device_id, variable_id)
+        mode = self.getAttributeValue(variable_id)
         if mode == 0:
             return "heating"
         elif mode == 1:
