@@ -61,9 +61,7 @@ class HeatPump:
                     device_id = device["mb_addr"]
                     device_name = device["mb_name"]
 
-                    response = await self._api.async_get_data(
-                        self, module_id, device_id
-                    )
+                    response = await self._api.async_get_data(module_id, device_id)
 
                     self._data[module_id] = {
                         device_id: {
@@ -82,11 +80,10 @@ class HeatPump:
     def getModules(self):
         """Return a dict of all devices with data."""
         modules = {}
-        for module in self._data:
-            for device in module:
-                module_id = device["info"]["module_id"]
-                device_id = device["info"]["device_id"]
-                modules[module_id][device_id] = device
+        for module_id, devices in (self._data).items():
+            for device_id, data in devices.items():
+                modules[module_id] = {}
+                modules[module_id][device_id] = data
         return modules
 
     def getAttributeValue(self, module_id, device_id, attribute):

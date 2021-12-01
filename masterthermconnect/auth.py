@@ -75,7 +75,6 @@ class Auth:
         # url = urljoin(URL_BASE, URL_LOGIN)
         # data = f"login=login&uname={self._username}&upwd={self._password}&{self._clientinfo}"
         # response = await self.api_wrapper("post", url, data)
-        _LOGGER.error(response)
 
         # Response should always be 200 even for login failures.
         if response.status != 200:
