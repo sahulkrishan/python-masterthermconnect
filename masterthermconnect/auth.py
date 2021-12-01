@@ -101,7 +101,7 @@ class Auth:
         )
 
         # Initialize module dict.
-        for module in response["modules"]:
+        for module in responseJSON["modules"]:
             for device in module["config"]:
                 module_id = module["id"]
                 module_name = module["module_name"]
