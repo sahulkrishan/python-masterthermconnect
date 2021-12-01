@@ -85,5 +85,6 @@ class Device:
     def getAttributeValue(self, attribute):
         if not self._dataLoaded:
             self.getData()
+        _LOGGER.info(self._data)
         value = self._data[attribute]
         return value
