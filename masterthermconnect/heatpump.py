@@ -62,6 +62,7 @@ class HeatPump:
                     device_name = device["mb_name"]
 
                     response = await self._api.async_get_data(module_id, device_id)
+                    _LOGGER.debug(response)
 
                     self._data[module_id] = {
                         device_id: {
@@ -87,6 +88,8 @@ class HeatPump:
         return modules
 
     def getAttributeValue(self, module_id, device_id, attribute):
+        if not self._dataLoaded:
+            self.updateData()
         value = self._data[module_id][device_id]["data"]["response"][0][0][attribute]
         return value
 
@@ -94,12 +97,12 @@ class HeatPump:
     def getCurrentTemperature(self, module_id, device_id):
         """Get the current temparature"""
         variable_id = "A_211"
-        return float(getAttributeValue(module_id, device_id, variable_id))
+        return float(self.getAttributeValue(module_id, device_id, variable_id))
 
     def getTemperature(self, module_id, device_id):
         """Get the requested temperature"""
         variable_id = "A_191"
-        return float(getAttributeValue(module_id, device_id, variable_id))
+        return float(self.getAttributeValue(module_id, device_id, variable_id))
 
     def setTemperature(self, module_id, device_id, temp):
         """Set a new temperature"""
@@ -114,7 +117,7 @@ class HeatPump:
     def getHVACMode(self, module_id, device_id):
         """Return current mode of MasterTherm device"""
         variable_id = "I_52"
-        mode = getAttributeValue(module_id, device_id, variable_id)
+        mode = self.getAttributeValue(module_id, device_id, variable_id)
         if mode == 0:
             return "heating"
         elif mode == 1:
