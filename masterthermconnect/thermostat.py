@@ -51,9 +51,6 @@ class Thermostat(Device):
         variable_id = "A_191"
         variable_value = float(temp)
         response = self.async_set_data(
-            self._module_id,
-            self._device_id,
-            self._config_file,
             variable_id,
             variable_value,
         )
