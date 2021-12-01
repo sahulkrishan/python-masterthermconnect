@@ -42,13 +42,15 @@ class Thermostat(Device):
     async def getTemperature(self):
         """Get the requested temperature"""
         variable_id = "A_191"
-        return float(await self.getAttributeValue(variable_id))
+        value = float(await self.getAttributeValue(variable_id))
+        _LOGGER.debug(value)
+        return value
 
     async def setTemperature(self, temp):
         """Set a new temperature"""
         variable_id = "A_191"
         variable_value = float(temp)
-        response = self._api.async_set_data(
+        response = self.async_set_data(
             self._module_id,
             self._device_id,
             self._config_file,
