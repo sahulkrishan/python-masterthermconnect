@@ -50,7 +50,7 @@ class Device:
         """Get data"""
         self._dataLoaded = False
 
-        response = await self._api.async_get_data()
+        response = await self.async_get_data()
         responseJSON = await response.json()
 
         if response.status != 200:
