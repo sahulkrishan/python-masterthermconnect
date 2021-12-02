@@ -51,6 +51,10 @@ class Device:
         self._data_loaded = False
 
         response = await self.async_get_data()
+        _LOGGER.debug("async_get_data")
+        _LOGGER.debug(_module_id)
+        _LOGGER.debug(_device_id)
+        _LOGGER.debug(response)
         responseJSON = await response.json()
 
         if response.status != 200:
@@ -73,9 +77,6 @@ class Device:
         url = urljoin(URL_BASE, URL_GET)
         data = f"messageId={self._message_id}&moduleId={self._module_id}&deviceId={self._device_id}&fullRange=true&errorResponse=true&lastUpdateTime=0"
         response = await self._auth.api_wrapper("get", url, data)
-        _LOGGER.debug("async_get_data")
-        _LOGGER.debug(data)
-        _LOGGER.debug(response)
         return response
 
     async def async_set_data(self, variable_id, variable_value):
