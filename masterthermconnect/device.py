@@ -100,9 +100,6 @@ class Device:
         # TO-DO check response
         return True
 
-    async def getAttributeValue(self, attribute):
-        if not self._data_loaded:
-            await self.getData()
-        _LOGGER.info(self._data)
+    def getAttributeValue(self, attribute):
         value = self._data[attribute]
         return value
