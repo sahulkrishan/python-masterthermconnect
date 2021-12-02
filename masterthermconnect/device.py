@@ -91,7 +91,7 @@ class Device:
         return True
 
     async def getAttributeValue(self, attribute):
-        if not self._dataLoaded:
+        if not self._data_loaded:
             await self.getData()
         _LOGGER.info(self._data)
         value = self._data[attribute]
