@@ -138,10 +138,14 @@ class Auth:
 
             async with async_timeout.timeout(TIMEOUT):
                 if method == "get":
-                    return await self._session.get(url, data=data, headers=HEADERS)
+                    response = await self._session.get(url, data=data, headers=HEADERS)
+                    _LOGGER.debug(response)
+                    return response
 
                 elif method == "post":
-                    return await self._session.post(url, data=data, headers=HEADERS)
+                    response = await self._session.post(url, data=data, headers=HEADERS)
+                    _LOGGER.debug(response)
+                    return response
 
         except asyncio.TimeoutError as exception:
             _LOGGER.error(
