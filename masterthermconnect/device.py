@@ -41,14 +41,14 @@ class Device:
         self._module_name = None
         self._device_name = None
         self._config_file = None
-        self._message_id: int = 1
+        self._message_id: int = 0
         self._timestamp: int = None
-        self._dataLoaded = False
+        self._data_loaded = False
         self._data = {}
 
     async def getData(self):
         """Get data"""
-        self._dataLoaded = False
+        self._data_loaded = False
 
         response = await self.async_get_data()
         responseJSON = await response.json()
@@ -64,14 +64,14 @@ class Device:
 
         self._data = responseJSON["data"][self._config_file][listId]
 
-        self._dataLoaded = True
+        self._data_loaded = True
         return True
 
     async def async_get_data(self):
         """Get data of MasterTherm device from the API"""
         self._message_id += 1
         url = urljoin(URL_BASE, URL_GET)
-        data = f"messageId={self._messageId}&moduleId={self._module_id}&deviceId={self._device_id}&fullRange=true&errorResponse=true&lastUpdateTime=0"
+        data = f"messageId={self._message_id}&moduleId={self._module_id}&deviceId={self._device_id}&fullRange=true&errorResponse=true&lastUpdateTime=0"
         response = await self.api_wrapper("get", url, data)
         _LOGGER.debug("async_get_data")
         _LOGGER.debug(data)
@@ -82,7 +82,7 @@ class Device:
         """Post data to MasterTherm device with the API"""
         self._message_id += 1
         url = urljoin(URL_BASE, URL_POST)
-        data = f"configFile={self._config_file}&messageId={self._messageId}&moduleId={self._module_id}&deviceId={self._device_id}&variableId={variable_id}&variableValue={variable_value}"
+        data = f"configFile={self._config_file}&messageId={self._message_id}&moduleId={self._module_id}&deviceId={self._device_id}&variableId={variable_id}&variableValue={variable_value}"
         response = await self.api_wrapper("post", url, data)
         _LOGGER.debug("async_set_data")
         _LOGGER.debug(data)
