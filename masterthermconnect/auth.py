@@ -1,10 +1,6 @@
 """MasterTherm Connection to the Web API."""
 import logging
-import asyncio
-import socket
-from typing import Optional
 import aiohttp
-import async_timeout
 
 from datetime import datetime
 from hashlib import sha1
@@ -22,6 +18,7 @@ from .const import (
     URL_LOGIN,
     URL_GET,
     URL_POST,
+    SUPPORTED_ROLES,
 )
 
 from .exceptions import (
@@ -29,6 +26,7 @@ from .exceptions import (
     MasterThermConnectionError,
     MasterThermResponseFormatError,
     MasterThermTokenInvalid,
+    MasterThermUnsupportedRole,
 )
 
 TIMEOUT = 10
@@ -72,10 +70,6 @@ class Auth:
             headers={"content-type": "application/x-www-form-urlencoded"},
         )
 
-        # url = urljoin(URL_BASE, URL_LOGIN)
-        # data = f"login=login&uname={self._username}&upwd={self._password}&{self._clientinfo}"
-        # response = await self.api_wrapper("post", url, data)
-
         # Response should always be 200 even for login failures.
         if response.status != 200:
             errorMsg = await response.text()
@@ -88,11 +82,11 @@ class Auth:
                 responseJSON["returncode"], responseJSON["message"]
             )
 
-        # # Check if role is supported
-        # if not responseJSON["role"] in SUPPORTED_ROLES:
-        #     raise MasterThermUnsupportedRole(
-        #         "2", "Unsupported Role " + responseJSON["role"]
-        #     )
+        # Check if role is supported
+        if not responseJSON["role"] in SUPPORTED_ROLES:
+            raise MasterThermUnsupportedRole(
+                "2", "Unsupported Role " + responseJSON["role"]
+            )
 
         # Get or Refresh the Token and Expiry
         self._token = response.cookies[COOKIE_TOKEN].value
@@ -130,41 +124,51 @@ class Auth:
             self._isConnected = False
         return self._isConnected
 
-    async def api_wrapper(self, method, url, data):
-        """Get information from the API."""
-        try:
-            if not await self.isConnected():
-                await self.connect()
+    # this is just broken
+    # async def api_wrapper(self, method, url, data):
+    #     """Get information from the API."""
+    #     print("api_wrapper")
+    #     print(method)
+    #     print(url)
+    #     print(data)
+    #     _cookies = {COOKIE_TOKEN: self._token, "$version": APP_VERSION}
+    #     try:
+    #         if not await self.isConnected():
+    #             await self.connect()
 
-            async with async_timeout.timeout(TIMEOUT):
-                if method == "get":
-                    response = await self._session.get(url, data=data, headers=HEADERS)
-                    _LOGGER.debug(response)
-                    return response
+    #         async with async_timeout.timeout(TIMEOUT):
+    #             if method == "get":
+    #                 response = await self._session.get(
+    #                     url, data=data, headers=HEADERS, cookies=_cookies
+    #                 )
+    #                 print(response)
+    #                 return response
 
-                elif method == "post":
-                    response = await self._session.post(url, data=data, headers=HEADERS)
-                    _LOGGER.debug(response)
-                    return response
+    #             elif method == "post":
+    #                 response = await self._session.post(
+    #                     url, data=data, headers=HEADERS, cookies=_cookies
+    #                 )
+    #                 print(response)
+    #                 return response
 
-        except asyncio.TimeoutError as exception:
-            _LOGGER.error(
-                "Timeout error fetching information from %s - %s",
-                url,
-                exception,
-            )
+    #     except asyncio.TimeoutError as exception:
+    #         _LOGGER.error(
+    #             "Timeout error fetching information from %s - %s",
+    #             url,
+    #             exception,
+    #         )
 
-        except (KeyError, TypeError) as exception:
-            _LOGGER.error(
-                "Error parsing information from %s - %s",
-                url,
-                exception,
-            )
-        except (aiohttp.ClientError, socket.gaierror) as exception:
-            _LOGGER.error(
-                "Error fetching information from %s - %s",
-                url,
-                exception,
-            )
-        except Exception as exception:  # pylint: disable=broad-except
-            _LOGGER.error("An unknown error has occured")
+    #     except (KeyError, TypeError) as exception:
+    #         _LOGGER.error(
+    #             "Error parsing information from %s - %s",
+    #             url,
+    #             exception,
+    #         )
+    #     except (aiohttp.ClientError, socket.gaierror) as exception:
+    #         _LOGGER.error(
+    #             "Error fetching information from %s - %s",
+    #             url,
+    #             exception,
+    #         )
+    #     except Exception as exception:  # pylint: disable=broad-except
+    #         _LOGGER.error("An unknown error has occured")
