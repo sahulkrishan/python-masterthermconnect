@@ -138,7 +138,7 @@ class Auth:
 
             async with async_timeout.timeout(TIMEOUT):
                 if method == "get":
-                    return await self._session.get(url, headers=HEADERS)
+                    return await self._session.get(url, headers=HEADERS, json=data)
 
                 elif method == "post":
                     return await self._session.post(url, headers=HEADERS, json=data)
