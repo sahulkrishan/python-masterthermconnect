@@ -33,15 +33,17 @@ class Device:
         self._device_name = None
         self._config_file = None
         self._message_id: int = 0
-        self._timestamp: int = None
+        self._timestamp: int = 0
         self._data_loaded = False
         self._data = {}
 
-    async def getData(self):
+    async def getData(self, fullRange="true"):
         """Get data"""
-        self._data_loaded = False
+        # If data has not been loaded or timestamp is 0, load full data
+        if not self._data_loaded or not self._data or self._timestamp == 0:
+            fullRange = "true"
 
-        response = await self.async_get_data()
+        response = await self.async_get_data(fullRange)
 
         try:
             responseJSON = await response.json()
@@ -58,24 +60,36 @@ class Device:
             errorMsg = await response.text()
             raise MasterThermConnectionError(str(response.status), errorMsg)
 
+        if responseJSON["error"]["errorId"] != 0:
+            _LOGGER.error(
+                "MasterTherm API Error: %s", responseJSON["error"]["errorMessage"]
+            )
+            return False
+
         self._timestamp = responseJSON["timestamp"]
 
-        self._config_file = list(responseJSON["data"].keys())[0]
-        listId = list(responseJSON["data"][self._config_file].keys())[0]
+        if responseJSON["data"]:
+            self._config_file = list(responseJSON["data"].keys())[0]
+            listId = list(responseJSON["data"][self._config_file].keys())[0]
+            data = responseJSON["data"][self._config_file][listId]
 
-        self._data = responseJSON["data"][self._config_file][listId]
+            for variable_id, variable_value in data.items():
+                self._data[variable_id] = variable_value
 
         self._data_loaded = True
         return True
 
     # TO-DO clean-up
-    async def async_get_data(self):
+    async def async_get_data(self, fullRange="false"):
         """Get data of MasterTherm device from the API"""
+        if not self._auth.isConnected():
+            await self._auth.connect()
+
         self._message_id += 1
         url = urljoin(URL_BASE, URL_GET)
         cookies = {COOKIE_TOKEN: self._auth._token, "$version": APP_VERSION}
-        data = f"messageId={self._message_id}&moduleId={self._module_id}&deviceId={self._device_id}&fullRange=true&errorResponse=true&lastUpdateTime=0"
-        # response = await self._auth.api_wrapper("get", url, data)
+        data = f"messageId={self._message_id}&moduleId={self._module_id}&deviceId={self._device_id}&fullRange={fullRange}&errorResponse=true&lastUpdateTime={self._timestamp}"
+
         response = await self._auth._session.post(
             url,
             data=data,
@@ -87,17 +101,32 @@ class Device:
     # TO-DO clean-up
     async def async_set_data(self, variable_id, variable_value):
         """Post data to MasterTherm device with the API"""
+        if not self._auth.isConnected():
+            await self._auth.connect()
+
         self._message_id += 1
         url = urljoin(URL_BASE, URL_POST)
         cookies = {COOKIE_TOKEN: self._auth._token, "$version": APP_VERSION}
         data = f"configFile={self._config_file}&messageId={self._message_id}&moduleId={self._module_id}&deviceId={self._device_id}&variableId={variable_id}&variableValue={variable_value}"
+
         response = await self._auth._session.post(
             url,
             data=data,
             headers={"content-type": "application/x-www-form-urlencoded"},
             cookies=cookies,
         )
-        # TO-DO check response
+        responseJSON = await response.json()
+
+        if response.status != 200:
+            errorMsg = await response.text()
+            raise MasterThermConnectionError(str(response.status), errorMsg)
+
+        if responseJSON["error"]["errorId"] != 0:
+            _LOGGER.error(
+                "MasterTherm API Error: %s", responseJSON["error"]["errorMessage"]
+            )
+            return False
+
         return True
 
     def getAttributeValue(self, attribute):

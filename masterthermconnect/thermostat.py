@@ -26,11 +26,10 @@ class Thermostat(Device):
         """Set a new temperature"""
         variable_id = "A_191"
         variable_value = float(temp)
-        await self.async_set_data(
+        return await self.async_set_data(
             variable_id,
             variable_value,
         )
-        return True
 
     def getHVACMode(self):
         """Return current mode of MasterTherm device"""
@@ -38,9 +37,7 @@ class Thermostat(Device):
         mode = self.getAttributeValue(variable_id)
         if mode == "0":
             return "heating"
-        elif mode == "1":
+        if mode == "1":
             return "cooling"
-        elif mode == "2":
+        if mode == "2":
             return "auto"
-        else:
-            return "unknown"

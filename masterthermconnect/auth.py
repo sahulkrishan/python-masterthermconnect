@@ -1,7 +1,8 @@
-"""MasterTherm Connection to the Web API."""
+"""MasterTherm Authenticator to the Web API."""
 import logging
 import aiohttp
 
+import time
 from datetime import datetime
 from hashlib import sha1
 import logging
@@ -38,12 +39,12 @@ HEADERS = {"content-type": "application/x-www-form-urlencoded"}
 
 
 class Auth:
-    """Connection Handler for the MasterTherm API."""
+    """Authentication Handler for the MasterTherm API."""
 
     def __init__(
         self, username: str, password: str, session: aiohttp.ClientSession
     ) -> None:
-        """Initiate the Connection API."""
+        """Initiate the Authentication API."""
         self._username = username
         self._password = sha1(password.encode("utf-8")).hexdigest()
         self._session = session
@@ -51,7 +52,6 @@ class Auth:
         self._token = None
         self._expires = None
         self._isConnected = False
-        self._lastUpdateTime = None
         self._modules = {}
 
     # async def async_set_title(self, value: str) -> None:
@@ -91,7 +91,7 @@ class Auth:
         # Get or Refresh the Token and Expiry
         self._token = response.cookies[COOKIE_TOKEN].value
         self._expires = datetime.strptime(
-            response.headers[HEADER_TOKEN_EXPIRES], DATE_FORMAT
+            response.cookies[COOKIE_TOKEN]["expires"], DATE_FORMAT
         )
 
         # Initialize module dict.
@@ -118,57 +118,8 @@ class Auth:
         """Return a dict of all modules."""
         return self._modules
 
-    async def isConnected(self):
+    def isConnected(self):
         """Check if session is still valid"""
-        if self._expires <= datetime.now():
+        if self._expires <= datetime.fromtimestamp(time.mktime(time.gmtime())):
             self._isConnected = False
         return self._isConnected
-
-    # this is just broken
-    # async def api_wrapper(self, method, url, data):
-    #     """Get information from the API."""
-    #     print("api_wrapper")
-    #     print(method)
-    #     print(url)
-    #     print(data)
-    #     _cookies = {COOKIE_TOKEN: self._token, "$version": APP_VERSION}
-    #     try:
-    #         if not await self.isConnected():
-    #             await self.connect()
-
-    #         async with async_timeout.timeout(TIMEOUT):
-    #             if method == "get":
-    #                 response = await self._session.get(
-    #                     url, data=data, headers=HEADERS, cookies=_cookies
-    #                 )
-    #                 print(response)
-    #                 return response
-
-    #             elif method == "post":
-    #                 response = await self._session.post(
-    #                     url, data=data, headers=HEADERS, cookies=_cookies
-    #                 )
-    #                 print(response)
-    #                 return response
-
-    #     except asyncio.TimeoutError as exception:
-    #         _LOGGER.error(
-    #             "Timeout error fetching information from %s - %s",
-    #             url,
-    #             exception,
-    #         )
-
-    #     except (KeyError, TypeError) as exception:
-    #         _LOGGER.error(
-    #             "Error parsing information from %s - %s",
-    #             url,
-    #             exception,
-    #         )
-    #     except (aiohttp.ClientError, socket.gaierror) as exception:
-    #         _LOGGER.error(
-    #             "Error fetching information from %s - %s",
-    #             url,
-    #             exception,
-    #         )
-    #     except Exception as exception:  # pylint: disable=broad-except
-    #         _LOGGER.error("An unknown error has occured")

@@ -5,7 +5,7 @@ APP_VERSION = "1"
 
 COOKIE_TOKEN = "PHPSESSID"
 HEADER_TOKEN_EXPIRES = "Date"
-DATE_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
+DATE_FORMAT = "%a, %d-%b-%Y %H:%M:%S %Z"
 SUPPORTED_ROLES = ["400"]
 
 URL_BASE = "https://mastertherm.vip-it.cz"
