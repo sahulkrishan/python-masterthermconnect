@@ -82,7 +82,7 @@ class Device:
     # TO-DO clean-up
     async def async_get_data(self, fullRange="false"):
         """Get data of MasterTherm device from the API"""
-        if not self._auth.isConnected():
+        if not await self._auth.isConnected():
             await self._auth.connect()
 
         self._message_id += 1
@@ -101,7 +101,7 @@ class Device:
     # TO-DO clean-up
     async def async_set_data(self, variable_id, variable_value):
         """Post data to MasterTherm device with the API"""
-        if not self._auth.isConnected():
+        if not await self._auth.isConnected():
             await self._auth.connect()
 
         self._message_id += 1

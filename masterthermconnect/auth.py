@@ -118,9 +118,9 @@ class Auth:
         """Return a dict of all modules."""
         return self._modules
 
-    def isConnected(self):
+    async def isConnected(self):
         """Check if session is still valid"""
-        response = self._session.post(
+        response = await self._session.post(
             urljoin(URL_BASE, URL_POST),
             headers={"content-type": "application/x-www-form-urlencoded"},
         )
