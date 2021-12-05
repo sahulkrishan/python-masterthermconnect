@@ -120,6 +120,13 @@ class Auth:
 
     def isConnected(self):
         """Check if session is still valid"""
-        if self._expires <= datetime.fromtimestamp(time.mktime(time.gmtime())):
+        response = self._session.post(
+            urljoin(URL_BASE, URL_POST),
+            headers={"content-type": "application/x-www-form-urlencoded"},
+        )
+        if (
+            self._expires <= datetime.fromtimestamp(time.mktime(time.gmtime()))
+            or not "application/json" in response.headers["content-type"]
+        ):
             self._isConnected = False
         return self._isConnected
